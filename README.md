@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Cyberous WorkFlow
 
 Cyberous WorkFlow is a web-based workflow management demo with an Express backend and a browser-based frontend. It includes an admin workspace and a client request portal.
@@ -88,3 +89,6 @@ The API is served from `/api`. Available endpoints cover health checks, login, d
 - Keep the backend running while using the frontend; the frontend calls the API at `http://localhost:5002`.
 - This project is a demo/starter application, not configured for production deployment.
 - Do not commit credentials, private data, or locally uploaded files to a public repository.
+=======
+# Cyberous-WorkFlow
+>>>>>>> d76ce4e118d9ad95d208a161d1a842f97737f7ff
