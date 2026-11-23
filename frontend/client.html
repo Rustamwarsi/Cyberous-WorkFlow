@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cyberous Workflow - Client Portal</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="client-portal-body">
+    <div class="client-portal-shell">
+      <div class="client-portal-card client-portal-wide">
+        <div class="client-portal-header">
+          <div class="brand-mark large"></div>
+          <div>
+            <div class="portal-title">CYBEROUS</div>
+            <div class="portal-subtitle">WORKFLOW</div>
+          </div>
+        </div>
+
+        <div class="portal-headline">
+          <h1>Client Website Request</h1>
+          <p>Tell us about your project and we will review it with our team.</p>
+        </div>
+
+        <form id="clientPortalForm" class="client-form">
+          <div class="client-form-grid">
+            <label class="field">
+              <span>Client Name</span>
+              <input type="text" id="clientName" placeholder="Enter your full name" required />
+            </label>
+
+            <label class="field">
+              <span>Company Name</span>
+              <input type="text" id="clientCompany" placeholder="Company or business name" required />
+            </label>
+
+            <label class="field">
+              <span>Phone Number</span>
+              <input type="tel" id="clientPhone" placeholder="Enter your phone number" required />
+            </label>
+
+            <label class="field">
+              <span>Email Address</span>
+              <input type="email" id="clientEmail" placeholder="Enter your email" required />
+            </label>
+
+            <label class="field field-full">
+              <span>Address</span>
+              <input type="text" id="clientAddress" placeholder="Enter your address" />
+            </label>
+
+            <label class="field field-full">
+              <span>Website Requirement</span>
+              <textarea id="websiteRequirement" rows="4" placeholder="Describe the website you need, pages, design goals, and business needs" required></textarea>
+            </label>
+
+            <label class="field">
+              <span>Budget</span>
+              <input type="text" id="clientBudget" placeholder="Example: $2,000 - $5,000" required />
+            </label>
+
+            <label class="field">
+              <span>Preferred Type</span>
+              <select id="clientProjectType">
+                <option value="Website Development">Website Development</option>
+                <option value="Business Website">Business Website</option>
+                <option value="Landing Page">Landing Page</option>
+                <option value="E-commerce">E-commerce</option>
+                <option value="Portfolio">Portfolio</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Status</span>
+              <select id="clientStatus">
+                <option value="Pending" selected>Pending</option>
+              </select>
+            </label>
+
+            <label class="field field-full">
+              <span>Additional Notes</span>
+              <textarea id="clientNotes" rows="3" placeholder="Any extra details, target audience, or timeline expectations"></textarea>
+            </label>
+          </div>
+
+          <div class="client-actions">
+            <button type="submit" class="primary-btn client-submit">Send Request</button>
+          </div>
+
+          <p id="clientFormMessage" class="client-form-message"></p>
+        </form>
+
+        <section class="client-status-lookup" aria-labelledby="clientStatusLookupTitle">
+          <h2 id="clientStatusLookupTitle">Check Your Request Status</h2>
+          <form id="clientStatusLookupForm" class="client-status-lookup-form">
+            <label class="field">
+              <span>Email Address</span>
+              <input type="email" id="lookupEmail" placeholder="Enter the email used in your request" required />
+            </label>
+            <button type="submit" class="secondary-btn">View My Status</button>
+          </form>
+          <p id="lookupMessage" class="client-form-message"></p>
+          <p id="deletionMessage" class="client-deletion-message" hidden></p>
+        </section>
+
+        <section id="submittedRequest" class="submitted-request" hidden>
+          <h2>My Client Requests</h2>
+          <div class="client-portal-table-wrap">
+            <table class="client-portal-table">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Company</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Address</th>
+                  <th>Website Need</th>
+                  <th>Project Type</th>
+                  <th>Budget</th>
+                  <th>Notes</th>
+                  <th>Status</th>
+                  <th>Status History</th>
+                  <th>Submitted</th>
+                </tr>
+              </thead>
+              <tbody id="submittedRequestDetails"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const clientPortalForm = document.getElementById('clientPortalForm');
+      const clientFormMessage = document.getElementById('clientFormMessage');
+      const submittedRequest = document.getElementById('submittedRequest');
+      const submittedRequestDetails = document.getElementById('submittedRequestDetails');
+      const clientStatusLookupForm = document.getElementById('clientStatusLookupForm');
+      const lookupEmail = document.getElementById('lookupEmail');
+      const lookupMessage = document.getElementById('lookupMessage');
+      const deletionMessage = document.getElementById('deletionMessage');
+
+      const escapeHtml = (value) => String(value || '-').replace(/[&<>'"]/g, (character) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[character]));
+
+      const renderRequestRows = (requests) => {
+        if (!requests.length) {
+          submittedRequest.hidden = true;
+          return;
+        }
+
+        submittedRequestDetails.innerHTML = requests.map((request) => `
+          <tr>
+            <td>${escapeHtml(request.clientName)}</td>
+            <td>${escapeHtml(request.company)}</td>
+            <td>${escapeHtml(request.email)}</td>
+            <td>${escapeHtml(request.phone)}</td>
+            <td>${escapeHtml(request.address)}</td>
+            <td>${escapeHtml(request.projectType || 'Website Development')}</td>
+            <td>${escapeHtml(request.websiteNeed)}</td>
+            <td>${escapeHtml(request.budget)}</td>
+            <td>${escapeHtml(request.notes)}</td>
+            <td><span class="status-pill ${String(request.status || 'Pending').toLowerCase().replace(/\s+/g, '-')}">${escapeHtml(request.status || 'Pending')}</span></td>
+            <td>${(request.statusHistory || []).map((item) => `${escapeHtml(item.status)}: ${escapeHtml(new Date(item.changedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }))}`).join('<br>') || '-'}</td>
+            <td>${escapeHtml(request.requestDate)}</td>
+          </tr>
+        `).join('');
+        submittedRequest.hidden = false;
+      };
+
+      const loadSubmittedRequests = async (email) => {
+        if (!email) return;
+        try {
+          const [requestsResponse, notificationsResponse] = await Promise.all([
+            fetch('http://localhost:5002/api/client-requests'),
+            fetch(`http://localhost:5002/api/client-notifications?email=${encodeURIComponent(email)}`)
+          ]);
+          const requests = await requestsResponse.json();
+          const notifications = await notificationsResponse.json();
+          const matches = (Array.isArray(requests) ? requests : []).filter((request) => String(request.email || '').toLowerCase() === email.toLowerCase());
+          renderRequestRows(matches);
+          if (Array.isArray(notifications) && notifications.length) {
+            deletionMessage.textContent = notifications[0].message;
+            deletionMessage.hidden = false;
+          } else {
+            deletionMessage.hidden = true;
+          }
+          return matches.length;
+        } catch (error) {
+          console.error(error);
+          return 0;
+        }
+      };
+
+      clientStatusLookupForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = lookupEmail.value.trim();
+        const count = await loadSubmittedRequests(email);
+        if (count) {
+          lookupMessage.textContent = `${count} request${count === 1 ? '' : 's'} found. Your latest status is shown below.`;
+          lookupMessage.style.color = 'green';
+          localStorage.setItem('cyberousClientEmail', email);
+        } else {
+          lookupMessage.textContent = 'No active request found for this email address.';
+          lookupMessage.style.color = 'red';
+        }
+      });
+
+      const savedClientEmail = localStorage.getItem('cyberousClientEmail');
+      if (savedClientEmail) loadSubmittedRequests(savedClientEmail);
+
+      clientPortalForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const payload = {
+          clientName: document.getElementById('clientName').value.trim(),
+          company: document.getElementById('clientCompany').value.trim(),
+          phone: document.getElementById('clientPhone').value.trim(),
+          email: document.getElementById('clientEmail').value.trim(),
+          address: document.getElementById('clientAddress').value.trim(),
+          websiteNeed: document.getElementById('websiteRequirement').value.trim(),
+          budget: document.getElementById('clientBudget').value.trim(),
+          notes: document.getElementById('clientNotes').value.trim(),
+          priority: 'Medium',
+          status: document.getElementById('clientStatus').value,
+          requestDate: new Date().toISOString().split('T')[0],
+          projectType: document.getElementById('clientProjectType').value
+        };
+
+        if (!payload.clientName || !payload.company || !payload.phone || !payload.email || !payload.websiteNeed || !payload.budget) {
+          clientFormMessage.textContent = 'Please complete all required fields.';
+          clientFormMessage.style.color = 'red';
+          return;
+        }
+
+        try {
+          const response = await fetch('http://localhost:5002/api/client-requests', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Request failed.');
+          }
+
+          clientFormMessage.innerHTML = `Your website request has been sent successfully. Current status: <strong>${payload.status}</strong>. We will review it soon.`;
+          clientFormMessage.style.color = 'green';
+          localStorage.setItem('cyberousClientEmail', payload.email);
+          await loadSubmittedRequests(payload.email);
+          clientPortalForm.reset();
+        } catch (error) {
+          clientFormMessage.textContent = error.message || 'Unable to send request right now.';
+          clientFormMessage.style.color = 'red';
+        }
+      });
+    </script>
+  </body>
+</html>
